@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anleitung · Memovia</title>
+<meta name="description" content="So nutzen Sie Memovia richtig: Tester-Modus, Demenz-Stadium, Schwierigkeit von Fragen und Spielen, Aufgaben auswählen – und wie Sie mir Ihr Feedback senden.">
+<style>
+  :root{
+    --bg-top:#282754;
+    --bg-mid:#1f1e40;
+    --bg-bottom:#181731;
+    --card:rgba(255,255,255,.06);
+    --card-strong:rgba(255,255,255,.09);
+    --card-border:rgba(255,255,255,.10);
+    --gold:#EAB544;
+    --gold-deep:#D99F2B;
+    --gold-soft:rgba(234,181,68,.16);
+    --text:#F5F4FF;
+    --muted:#BDBBDB;
+    --eyebrow:#9E9CC6;
+    --radius:26px;
+    --radius-sm:18px;
+    --serif:'Iowan Old Style','Palatino Linotype','Book Antiqua',Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+  body{
+    font-family:var(--sans);
+    color:var(--text);
+    background:
+      radial-gradient(900px 480px at 50% -120px, rgba(126,97,255,.22), transparent 62%),
+      linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 46%, var(--bg-bottom) 100%);
+    background-attachment:fixed;
+    font-size:18px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px 64px;}
+
+  /* ---------- Header ---------- */
+  header{padding:72px 0 40px;text-align:center;}
+  .logo{font-size:52px;line-height:1;margin-bottom:18px;}
+  .eyebrow{
+    font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--eyebrow);
+  }
+  h1{
+    font-family:var(--serif);
+    font-size:clamp(38px,6vw,56px);
+    font-weight:700;line-height:1.12;
+    margin:10px 0 14px;
+  }
+  .sub{max-width:620px;margin:0 auto;color:var(--muted);font-size:19px;}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:30px;}
+  .btn{
+    display:inline-block;text-decoration:none;font-weight:600;font-size:17px;
+    padding:14px 26px;border-radius:999px;transition:transform .15s ease, background .15s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-gold{background:var(--gold);color:#241d05;}
+  .btn-gold:hover{background:#F2C25B;}
+  .btn-ghost{border:1.5px solid rgba(255,255,255,.28);color:var(--text);}
+  .btn-ghost:hover{background:rgba(255,255,255,.07);}
+
+  /* ---------- Sections / Cards ---------- */
+  section{margin-top:34px;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:34px 32px;
+    backdrop-filter:blur(6px);
+  }
+  .card .eyebrow{display:block;margin-bottom:8px;}
+  h2{
+    font-family:var(--serif);
+    font-size:clamp(26px,3.6vw,34px);
+    font-weight:700;line-height:1.2;
+    margin-bottom:14px;
+  }
+  h3{font-size:19px;font-weight:700;margin:22px 0 8px;}
+  p{color:var(--muted);}
+  p strong, li strong{color:var(--text);font-weight:650;}
+  .lead{font-size:19px;}
+  ul.clean{list-style:none;margin-top:10px;}
+  ul.clean li{
+    position:relative;padding-left:30px;margin-bottom:10px;color:var(--muted);
+  }
+  ul.clean li::before{
+    content:"✓";position:absolute;left:0;top:0;
+    color:var(--gold);font-weight:800;
+  }
+
+  /* Zwei-Spalten-Layout mit Screenshot */
+  .row{display:grid;grid-template-columns:1.15fr .8fr;gap:36px;align-items:start;}
+  .shot{margin:0;text-align:center;}
+  .shot img{
+    width:100%;max-width:300px;height:auto;
+    border-radius:34px;
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 24px 60px rgba(0,0,0,.45);
+  }
+  .shot figcaption{font-size:14px;color:var(--eyebrow);margin-top:12px;}
+
+  /* ---------- Nachgebaute App-Elemente ---------- */
+  .ui-toggle-card{
+    display:flex;align-items:center;gap:16px;
+    background:var(--card-strong);
+    border:1.5px solid var(--gold);
+    border-radius:var(--radius-sm);
+    padding:18px 20px;margin:18px 0 6px;
+  }
+  .ui-toggle-card .ico{font-size:26px;}
+  .ui-toggle-card .txt{flex:1;}
+  .ui-toggle-card .txt b{display:block;color:var(--text);font-size:18px;}
+  .ui-toggle-card .txt span{font-size:15px;color:var(--muted);}
+  .switch{
+    flex:none;width:56px;height:32px;border-radius:999px;background:var(--gold);position:relative;
+  }
+  .switch::after{
+    content:"";position:absolute;top:3px;right:3px;width:26px;height:26px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);
+  }
+
+  .option{
+    display:flex;align-items:center;gap:14px;
+    background:var(--card-strong);
+    border:1.5px solid transparent;
+    border-radius:var(--radius-sm);
+    padding:14px 18px;margin-top:12px;
+  }
+  .option .ico{font-size:22px;flex:none;}
+  .option .txt{flex:1;}
+  .option .txt b{display:block;color:var(--text);}
+  .option .txt span{font-size:15px;color:var(--muted);}
+  .option .ring{
+    flex:none;width:24px;height:24px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.35);
+  }
+  .option.selected{border-color:var(--gold);background:var(--gold-soft);}
+  .option.selected .ring{
+    border:none;background:var(--gold);color:#241d05;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:900;
+  }
+  .option.selected .ring::after{content:"✓";}
+
+  /* Slider-Nachbau Demenz-Stadium */
+  .slider-demo{
+    background:var(--card-strong);
+    border-radius:var(--radius-sm);
+    padding:22px 22px 16px;margin-top:18px;
+  }
+  .slider-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;}
+  .slider-top .big{font-family:var(--serif);font-size:40px;font-weight:700;}
+  .slider-top .big small{font-size:18px;color:var(--muted);font-family:var(--sans);font-weight:500;}
+  .pill{
+    border:1px solid rgba(255,255,255,.3);border-radius:999px;
+    padding:6px 16px;font-size:15px;color:var(--text);white-space:nowrap;
+  }
+  .track{position:relative;height:6px;border-radius:999px;background:rgba(255,255,255,.18);}
+  .knob{
+    position:absolute;left:0;top:50%;transform:translate(-2px,-50%);
+    width:44px;height:30px;border-radius:999px;background:#fff;
+    box-shadow:0 2px 6px rgba(0,0,0,.4);
+  }
+  .scale{display:flex;justify-content:space-between;font-size:14px;color:var(--eyebrow);margin-top:10px;}
+  .stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;}
+  .stage{
+    background:rgba(255,255,255,.05);border:1px solid var(--card-border);
+    border-radius:var(--radius-sm);padding:16px 18px;font-size:15.5px;color:var(--muted);
+  }
+  .stage b{display:block;color:var(--text);font-size:16.5px;margin-bottom:6px;}
+
+  /* Kategorien-Chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+  .chip{
+    background:var(--card-strong);border:1px solid var(--card-border);
+    border-radius:999px;padding:8px 16px;font-size:15.5px;color:var(--text);white-space:nowrap;
+  }
+  .chip .ok{color:var(--gold);font-weight:800;margin-left:6px;}
+  .chip.off{opacity:.45;}
+  .chip.off .ok{visibility:hidden;}
+
+  .hint{
+    display:flex;gap:12px;align-items:flex-start;
+    background:var(--gold-soft);border:1px solid rgba(234,181,68,.4);
+    border-radius:var(--radius-sm);padding:16px 18px;margin-top:20px;
+    font-size:16px;color:var(--text);
+  }
+  .hint .ico{font-size:20px;line-height:1.4;}
+
+  /* Gut zu wissen */
+  .mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;}
+  .mini{
+    background:var(--card-strong);border:1px solid var(--card-border);
+    border-radius:var(--radius-sm);padding:20px;
+  }
+  .mini .ico{font-size:26px;margin-bottom:10px;display:block;}
+  .mini b{display:block;margin-bottom:6px;}
+  .mini p{font-size:15.5px;}
+
+  /* Feedback */
+  .feedback{
+    text-align:center;
+    background:linear-gradient(160deg, rgba(234,181,68,.14), rgba(126,97,255,.12));
+    border:1px solid rgba(234,181,68,.35);
+  }
+  .feedback .lead{max-width:640px;margin:0 auto 6px;}
+  .mail{
+    display:inline-block;margin-top:8px;font-size:17px;color:var(--gold);
+    text-decoration:none;border-bottom:1px dashed rgba(234,181,68,.6);
+  }
+  .quote{
+    font-family:var(--serif);font-size:clamp(20px,3vw,24px);color:var(--text);
+    max-width:660px;margin:6px auto 18px;line-height:1.5;
+  }
+
+  footer{
+    text-align:center;margin-top:56px;color:var(--eyebrow);font-size:15px;
+  }
+  footer a{color:var(--muted);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2);}
+  footer a:hover{color:var(--text);}
+  .foot-links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;}
+
+  a:focus-visible,.btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:8px;}
+
+  @media (max-width:760px){
+    body{font-size:17px;}
+    .card{padding:26px 20px;}
+    .row{grid-template-columns:1fr;gap:26px;}
+    .shot{order:2;}
+    .stage-grid{grid-template-columns:1fr;}
+    .mini-grid{grid-template-columns:1fr;}
+    header{padding:56px 0 32px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= HEADER ================= -->
+  <header>
+    <div class="logo">🧠💜</div>
+    <span class="eyebrow">Memovia · Gedächtnistraining für Senioren</span>
+    <h1>So nutzen Sie Memovia</h1>
+    <p class="sub">Eine kurze Anleitung für Ihren Test – vom Tester-Modus über die richtigen
+    Einstellungen bis zu Ihrem Feedback, das die App besser macht.</p>
+    <div class="cta-row">
+      <a class="btn btn-gold" href="https://apps.apple.com/de/app/id6776669353">Im App&nbsp;Store laden</a>
+      <a class="btn btn-ghost" href="#feedback">Feedback senden</a>
+    </div>
+  </header>
+
+  <!-- ================= ERSTE SCHRITTE ================= -->
+  <section>
+    <div class="card">
+      <span class="eyebrow">Erste Schritte</span>
+      <h2>Start ohne Hürden</h2>
+      <div class="row">
+        <div>
+          <p class="lead">Memovia startet direkt als <strong>Gast</strong> – ganz ohne Konto,
+          Anmeldung oder Internet. Die Startseite hilft bei der Orientierung im Alltag:</p>
+          <ul class="clean">
+            <li><strong>Zur Orientierung:</strong> Wochentag, Datum und Jahreszeit – groß und gut lesbar.</li>
+            <li><strong>Heute:</strong> Wie viele Übungen heute schon gemacht wurden.</li>
+            <li><strong>Empfehlung für jetzt:</strong> Mit einem Tipp direkt ins Gehirnjogging starten.</li>
+            <li><strong>Unten die Bereiche:</strong> Start, Fragen, Spiele, Notizen und Angehörige.</li>
+          </ul>
+          <p style="margin-top:14px;">Alle Einstellungen aus dieser Anleitung finden Sie hinter dem
+          <strong>Zahnrad&nbsp;⚙️ oben rechts</strong> auf der Startseite.</p>
+        </div>
+        <figure class="shot">
+          <img src="images/01-startseite.png" alt="Memovia-Startseite mit Tagesorientierung, Tagesübersicht und Empfehlung">
+          <figcaption>Die Startseite – hier beginnt jede Übung.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTER-MODUS ================= -->
+  <section>
+    <div class="card">
+      <span class="eyebrow">Für Testerinnen &amp; Tester</span>
+      <h2>Tester-Modus: alles kostenlos freigeschaltet</h2>
+      <p class="lead">Damit Sie Memovia in vollem Umfang ausprobieren können, gibt es ganz oben in den
+      Einstellungen den <strong>Tester-Modus</strong>. Ein Fingertipp genügt:</p>
+
+      <div class="ui-toggle-card" role="img" aria-label="Tester-Modus, eingeschaltet">
+        <span class="ico">🛠️</span>
+        <span class="txt">
+          <b>Tester-Modus</b>
+          <span>Schaltet alle Premium-Funktionen zum Testen frei. Bleibt auch nach dem Schließen der App aktiv.</span>
+        </span>
+        <span class="switch" aria-hidden="true"></span>
+      </div>
+
+      <ul class="clean" style="margin-top:16px;">
+        <li><strong>Alle Premium-Funktionen sind kostenlos</strong> – sämtliche Spiele, alle Fragenkategorien, alles offen.</li>
+        <li><strong>Bleibt dauerhaft aktiv</strong>, auch wenn Sie die App schließen oder das Gerät neu starten.</li>
+        <li>Es entstehen <strong>keine Kosten</strong> und es ist kein Abo nötig – der Modus ist ausdrücklich für die Testphase gedacht.</li>
+      </ul>
+
+      <div class="hint">
+        <span class="ico">💡</span>
+        <span>Bitte schalten Sie den Tester-Modus <strong>gleich zu Beginn</strong> ein, damit Sie beim
+        Testen nirgends an eine Premium-Schranke stoßen.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DEMENZ-STADIUM ================= -->
+  <section id="demenz">
+    <div class="card">
+      <span class="eyebrow">Die wichtigste Einstellung</span>
+      <h2>Das Demenz-Stadium (0–10)</h2>
+      <div class="row">
+        <div>
+          <p class="lead">Der Schieberegler bestimmt, <strong>welche Art von Fragen</strong> Memovia stellt –
+          er passt die App an den Menschen an, nicht umgekehrt.</p>
+
+          <div class="slider-demo" role="img" aria-label="Demenz-Stadium-Regler, Stufe 0 von 10, Beschriftung: Kein bis leicht">
+            <div class="slider-top">
+              <span class="big">0 <small>/ 10</small></span>
+              <span class="pill">Kein bis leicht</span>
+            </div>
+            <div class="track"><span class="knob"></span></div>
+            <div class="scale"><span>0</span><span>5</span><span>10</span></div>
+          </div>
+
+          <div class="stage-grid">
+            <div class="stage">
+              <b>Stufe 0 – fordernd</b>
+              Anspruchsvolle Fragen wie <strong>Hauptstädte, Kopfrechnen, Sprichwörter und berühmte
+              Personen</strong>. Keine persönlichen Fragen über Angehörige – ideal für fitte
+              Seniorinnen und Senioren, die gefordert werden möchten.
+            </div>
+            <div class="stage">
+              <b>Richtung 10 – leichter &amp; persönlicher</b>
+              Je höher die Stufe, desto <strong>einfacher, alltagsnäher und angepasster</strong> werden
+              die Aufgaben – mit mehr persönlichen und vertrauten Themen, etwa Fragen zu den
+              <a href="#angehoerige" style="color:var(--gold);">hinterlegten Angehörigen</a>. Bei
+              hohen Stufen kommen zusätzlich Alltags-Übungen wie <strong>Verkehrsschilder</strong>
+              und <strong>Sicherheit im Alltag</strong> dazu.
+            </div>
+          </div>
+
+          <div class="hint">
+            <span class="ico">🎚️</span>
+            <span>Probieren Sie beim Testen ruhig <strong>mehrere Stufen</strong> aus – die Stufe lässt
+            sich jederzeit ändern, und Memovia stellt die Fragenauswahl sofort um.</span>
+          </div>
+        </div>
+        <figure class="shot">
+          <img src="images/02-tester-demenz.png" alt="Einstellungen mit Tester-Modus-Schalter und Demenz-Stadium-Regler von 0 bis 10">
+          <figcaption>Tester-Modus &amp; Demenz-Stadium in den Einstellungen.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCHWIERIGKEIT ================= -->
+  <section>
+    <div class="card">
+      <span class="eyebrow">Fein einstellen</span>
+      <h2>Schwierigkeit von Fragen und Spielen</h2>
+      <div class="row">
+        <div>
+          <p class="lead">Zusätzlich zum Demenz-Stadium gibt es <strong>zwei getrennte Regler</strong> –
+          so kann jemand z.&nbsp;B. leichte Fragen mögen, aber beim Damespiel einen starken Gegner wollen.</p>
+
+          <h3>Schwierigkeit der Fragen</h3>
+          <p>Steuert die <strong>Anzahl der Antwortmöglichkeiten</strong>, die <strong>Größe der
+          Zahlen</strong> und die <strong>Länge der Folgen</strong>.</p>
+
+          <h3>Schwierigkeit der Spiele</h3>
+          <p>Bestimmt, <strong>wie stark der Computer</strong> in <strong>Paare</strong>,
+          <strong>Vier in einer Reihe</strong>, <strong>Dame</strong> und im
+          <strong>Reaktionsspiel</strong> spielt.</p>
+
+          <div aria-label="Beispiel der drei Schwierigkeitsstufen">
+            <div class="option">
+              <span class="ico">🍃</span>
+              <span class="txt"><b>Leicht</b><span>Kleinere Zahlen, kürzere Reihen – für den Einstieg.</span></span>
+              <span class="ring"></span>
+            </div>
+            <div class="option selected">
+              <span class="ico">🔥</span>
+              <span class="txt"><b>Mittel</b><span>Ausgewogen – empfohlen für die tägliche Übung.</span></span>
+              <span class="ring"></span>
+            </div>
+            <div class="option">
+              <span class="ico">⚡</span>
+              <span class="txt"><b>Schwer</b><span>Größere Zahlen und längere Folgen für eine Herausforderung.</span></span>
+              <span class="ring"></span>
+            </div>
+          </div>
+        </div>
+        <figure class="shot">
+          <img src="images/03-schwierigkeit.png" alt="Einstellungen für die Schwierigkeit der Fragen und der Spiele mit den Stufen Leicht, Mittel und Schwer">
+          <figcaption>Zwei Regler: Fragen und Spiele getrennt einstellbar.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AUFGABEN AUSWÄHLEN ================= -->
+  <section>
+    <div class="card">
+      <span class="eyebrow">Themen anpassen</span>
+      <h2>Aufgaben rein- oder rausnehmen</h2>
+      <div class="row">
+        <div>
+          <p class="lead">Unter <strong>„Welche Aufgaben sollen drankommen?"</strong> bestimmen Sie
+          selbst, aus welchen Themen Memovia die Fragen zieht.</p>
+          <ul class="clean">
+            <li><strong>Antippen genügt:</strong> Ein Tipp auf eine Kategorie <strong>entfernt den
+            Haken</strong> – das Thema kommt nicht mehr dran. Ein zweiter Tipp holt es zurück.</li>
+            <li><strong>Beispiel:</strong> Wenn Rechnen frustriert, nehmen Sie einfach
+            <em>Kopfrechnen</em> heraus – schon tauchen keine Rechenaufgaben mehr auf.</li>
+            <li>So entsteht für jede Person eine <strong>ganz eigene Mischung</strong> aus über
+            37 Themenbereichen.</li>
+          </ul>
+
+          <div class="chips" aria-label="Beispiele für Aufgaben-Kategorien">
+            <span class="chip">🌍 Allgemeinwissen<span class="ok">✓</span></span>
+            <span class="chip">🎨 Farben<span class="ok">✓</span></span>
+            <span class="chip">🍂 Jahreszeiten<span class="ok">✓</span></span>
+            <span class="chip">🕐 Zeit &amp; Uhr<span class="ok">✓</span></span>
+            <span class="chip off">🔢 Kopfrechnen<span class="ok">✓</span></span>
+            <span class="chip">🐾 Tierwissen<span class="ok">✓</span></span>
+            <span class="chip">💬 Sprichwörter<span class="ok">✓</span></span>
+            <span class="chip">🎵 Reimwörter<span class="ok">✓</span></span>
+            <span class="chip">🧩 Was gehört zusammen<span class="ok">✓</span></span>
+          </div>
+          <p style="font-size:15px;margin-top:10px;color:var(--eyebrow);">Beispiel: „Kopfrechnen" ist hier abgewählt und kommt nicht mehr dran.</p>
+
+          <div class="hint">
+            <span class="ico">🔊</span>
+            <span>Direkt darüber finden Sie den <strong>Sprachmodus „Fragen vorlesen"</strong>:
+            Wenn er aktiv ist, liest Memovia jede neue Frage automatisch laut vor – eine große
+            Hilfe bei schwächeren Augen.</span>
+          </div>
+        </div>
+        <figure class="shot">
+          <img src="images/04-aufgaben.png" alt="Liste der Aufgaben-Kategorien mit goldenen Haken zum An- und Abwählen sowie Schalter Fragen vorlesen">
+          <figcaption>Jede Kategorie lässt sich per Fingertipp an- und abwählen.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ANGEHÖRIGE ================= -->
+  <section id="angehoerige">
+    <div class="card">
+      <span class="eyebrow">Persönliche Erinnerungen</span>
+      <h2>Der Angehörigen-Bereich</h2>
+      <div class="row">
+        <div>
+          <p class="lead">Im Bereich <strong>„Angehörige"</strong> (unten rechts in der Leiste)
+          können Sie die Familie hinterlegen – <strong>mit Bildern und Daten</strong>. Aus diesen
+          Angaben macht Memovia persönliche Übungen.</p>
+          <ul class="clean">
+            <li><strong>Personen anlegen:</strong> Tippen Sie oben rechts auf <strong>+</strong> und
+            erfassen Sie nahestehende Menschen – z.&nbsp;B. Kinder, Enkel oder Freunde – mit
+            <strong>Foto, Name, Beziehung und Geburtsdatum</strong>.</li>
+            <li><strong>Spezifische Fragen zu diesen Personen:</strong> Memovia baut daraus eigene
+            Aufgaben – etwa zu Namen, Gesichtern und Beziehungen der hinterlegten Angehörigen.
+            Vertraute Gesichter aktivieren das Gedächtnis besonders gut.</li>
+            <li><strong>Erst im höheren Demenz-Stadium:</strong> Diese persönlichen Fragen
+            erscheinen erst, wenn der <a href="#demenz" style="color:var(--gold);">Demenz-Stadium-Regler</a>
+            höher eingestellt ist. Bei Stufe&nbsp;0 stellt Memovia bewusst
+            <strong>keine persönlichen Fragen über Angehörige</strong>.</li>
+          </ul>
+
+          <div class="hint">
+            <span class="ico">🔒</span>
+            <span><strong>Ihre Daten werden nicht weitergegeben.</strong> Alle Fotos und Angaben zu
+            Angehörigen bleiben ausschließlich auf Ihrem Gerät – sie werden weder an uns noch an
+            Dritte übertragen. Details dazu in der
+            <a href="./" style="color:var(--gold);">Datenschutzerklärung</a>.</span>
+          </div>
+        </div>
+        <figure class="shot">
+          <img src="images/05-angehoerige.png" alt="Angehörigen-Bereich mit den Tabs Personen, Erinnerungen und Einblick sowie dem Hinweis, oben rechts auf Plus zu tippen">
+          <figcaption>Über das + oben rechts legen Sie die erste Person an.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GUT ZU WISSEN ================= -->
+  <section>
+    <div class="card">
+      <span class="eyebrow">Außerdem</span>
+      <h2>Gut zu wissen</h2>
+      <div class="mini-grid">
+        <div class="mini">
+          <span class="ico">🌗</span>
+          <b>Erscheinungsbild</b>
+          <p>Wählen Sie zwischen <strong>Standard</strong> (passt sich der Tageszeit an),
+          <strong>Tag</strong> (heller Verlauf) und <strong>Nacht</strong> (tiefes Schwarz für
+          entspannte Augen).</p>
+        </div>
+        <div class="mini">
+          <span class="ico">🎲</span>
+          <b>12 Spiele</b>
+          <p>Neben den Fragen warten Klassiker wie Memory, Wortsuche, Sudoku, Dame und das
+          Reaktionsspiel – im Tester-Modus alle freigeschaltet.</p>
+        </div>
+        <div class="mini">
+          <span class="ico">🔒</span>
+          <b>Privat &amp; offline</b>
+          <p>Alle Eingaben bleiben auf dem Gerät – ohne Konto, Werbung oder Tracking.
+          Details in der <a href="./" style="color:var(--gold);">Datenschutzerklärung</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEEDBACK ================= -->
+  <section id="feedback">
+    <div class="card feedback">
+      <span class="eyebrow">Ihre Meinung zählt</span>
+      <h2>Helfen Sie mir, Memovia besser zu machen</h2>
+      <p class="quote">„Ich habe Memovia bisher so entwickelt, wie <em>ich</em> es mir vorstelle.
+      Damit die App wirklich gut wird, brauche ich jetzt Ihre Meinung – die der Menschen,
+      die sie tatsächlich nutzen."</p>
+      <p class="lead">Was gefällt Ihnen? Was fehlt? Wo hakt es im Alltag – bei Ihnen selbst, Ihren
+      Angehörigen oder den Bewohnerinnen und Bewohnern? <strong>Jede Rückmeldung hilft</strong>,
+      egal ob zwei Sätze oder eine lange Liste.</p>
+      <div class="cta-row">
+        <a class="btn btn-gold" href="mailto:morgenunlimited@gmail.com?subject=Mein%20Feedback%20zu%20Memovia">Feedback per E-Mail senden</a>
+      </div>
+      <a class="mail" href="mailto:morgenunlimited@gmail.com?subject=Mein%20Feedback%20zu%20Memovia">morgenunlimited@gmail.com</a>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    <div class="foot-links">
+      <a href="./">Datenschutzerklärung</a>
+      <a href="https://apps.apple.com/de/app/id6776669353">Memovia im App&nbsp;Store</a>
+      <a href="mailto:morgenunlimited@gmail.com">Kontakt</a>
+    </div>
+    © 2026 Memovia · Made with 💜 in Deutschland
+  </footer>
+
+</div>
+</body>
+</html>
