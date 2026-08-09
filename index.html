@@ -2,183 +2,335 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#1F2647">
-<title>Memovia — Gedächtnistraining</title>
-<meta name="description" content="Memovia Web-Testversion: Gehirnjogging und Spiele für Senioren und Menschen mit Demenz. Alle Funktionen kostenlos.">
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datenschutzerklärung · Memovia</title>
+<style>
+  :root{
+    --bg-top:#282754;
+    --bg-mid:#1f1e40;
+    --bg-bottom:#181731;
+    --card:rgba(255,255,255,.06);
+    --card-strong:rgba(255,255,255,.09);
+    --card-border:rgba(255,255,255,.10);
+    --gold:#EAB544;
+    --gold-soft:rgba(234,181,68,.16);
+    --text:#F5F4FF;
+    --muted:#BDBBDB;
+    --eyebrow:#9E9CC6;
+    --radius:26px;
+    --radius-sm:18px;
+    --serif:'Iowan Old Style','Palatino Linotype','Book Antiqua',Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:var(--sans);
+    background:
+      radial-gradient(900px 480px at 50% -120px, rgba(126,97,255,.22), transparent 62%),
+      linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 46%, var(--bg-bottom) 100%);
+    background-attachment:fixed;
+    color:var(--text);
+    line-height:1.65;
+    font-size:17px;
+    padding:20px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .container{max-width:760px;margin:0 auto;}
+  header{
+    padding:56px 20px 36px;
+    text-align:center;
+  }
+  header .logo{font-size:52px;margin-bottom:16px;}
+  .eyebrow{
+    font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--eyebrow);display:block;
+  }
+  header h1{
+    font-family:var(--serif);
+    font-size:clamp(32px,6vw,44px);
+    font-weight:700;line-height:1.15;
+    margin:10px 0 8px;
+  }
+  header .subtitle{color:var(--muted);font-size:17px;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:30px 28px;
+    margin-bottom:20px;
+    backdrop-filter:blur(6px);
+  }
+  h2{
+    font-family:var(--serif);
+    color:var(--text);
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:14px;
+    padding-bottom:10px;
+    border-bottom:2px solid rgba(234,181,68,.35);
+  }
+  h3{
+    color:var(--text);
+    font-size:18px;
+    font-weight:700;
+    margin:18px 0 8px 0;
+  }
+  p, li{
+    color:var(--muted);
+    font-size:16px;
+    margin-bottom:10px;
+  }
+  ul, ol{padding-left:22px;margin-bottom:12px;}
+  strong{color:var(--text);font-weight:650;}
+  em{color:var(--text);}
+  code{
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:14px;
+    background:rgba(255,255,255,.09);
+    border:1px solid var(--card-border);
+    border-radius:6px;
+    padding:1px 6px;
+    color:var(--text);
+  }
+  a{color:var(--gold);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  a:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:6px;}
+  .note{
+    background:var(--gold-soft);
+    border:1px solid rgba(234,181,68,.4);
+    border-left:4px solid var(--gold);
+    padding:14px 18px;
+    margin:16px 0;
+    border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+    font-size:15.5px;
+    color:var(--text);
+  }
+  .note strong{color:var(--text);}
+  .meta{
+    text-align:center;
+    color:var(--eyebrow);
+    font-size:14px;
+    margin-top:30px;
+    padding:20px;
+  }
+  .meta a{color:var(--muted);border-bottom:1px solid rgba(255,255,255,.2);}
+  .meta a:hover{color:var(--text);text-decoration:none;}
+  @media (max-width:600px){
+    body{font-size:16px;}
+    header{padding:44px 12px 28px;}
+    header h1{font-size:28px;}
+    .card{padding:24px 20px;}
+  }
+</style>
 </head>
 <body>
+<div class="container">
 
-<!-- ═══════════ Onboarding (erster Start) ═══════════ -->
-<div id="onboarding" class="overlay hidden">
-  <div class="onboard-inner">
-    <img src="logo.png" alt="Memovia Logo" class="onboard-logo">
-    <h1 class="serif">Willkommen bei Memovia</h1>
-    <p class="onboard-sub">Gedächtnistraining für jeden Tag —<br>Fragen, Spiele und persönliche Erinnerungen.</p>
-    <div class="onboard-card glass">
-      <label for="onboardName">Wie dürfen wir Sie nennen?</label>
-      <input id="onboardName" type="text" placeholder="z.B. Maria" autocomplete="given-name" maxlength="24">
-      <button id="onboardStart" class="btn-primary">Los geht's</button>
-      <button id="onboardGuest" class="btn-ghost">Als Gast fortfahren</button>
-    </div>
-    <p class="onboard-note">Web-Testversion · Alle Funktionen kostenlos freigeschaltet.<br>Alle Daten bleiben nur auf diesem Gerät gespeichert.</p>
+  <header>
+    <div class="logo">🧠💜</div>
+    <span class="eyebrow">Memovia · Gedächtnistraining für Senioren</span>
+    <h1>Datenschutzerklärung</h1>
+    <p class="subtitle">Deine Daten bleiben auf deinem Gerät.</p>
+  </header>
+
+  <div class="card">
+    <h2>1. Verantwortlicher</h2>
+    <p>Verantwortlich für die Datenverarbeitung dieser App im Sinne der DSGVO ist:</p>
+    <p>
+      <strong>Silas Reihing</strong><br>
+      Schneckenburgstraße 56<br>
+      78467 Konstanz<br>
+      Deutschland<br>
+      E-Mail: <a href="mailto:morgenunlimited@gmail.com">morgenunlimited@gmail.com</a>
+    </p>
   </div>
+
+  <div class="card">
+    <h2>2. Grundsatz</h2>
+    <p>
+      Memovia ist als <strong>Offline-App</strong> konzipiert. Alle Daten, die du
+      in der App eingibst (Notizen, Angehörige, Fotos, Übungsfortschritte), werden
+      <strong>ausschließlich auf deinem Gerät gespeichert</strong> und verlassen
+      es nicht — es sei denn, du aktivierst ausdrücklich die iCloud-Synchronisation
+      (siehe Punkt 4).
+    </p>
+    <p>
+      Wir <strong>verkaufen oder vermarkten keine Daten</strong>. Wir nutzen
+      <strong>keine Tracking-Cookies, keine Werbung, keine Analyse-Dienste</strong>
+      (kein Google Analytics, kein Facebook-Pixel, kein Crashlytics o.ä.).
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>3. Welche Daten verarbeiten wir?</h2>
+
+    <h3>3.1 Lokal auf deinem Gerät</h3>
+    <p>Folgende Daten werden ausschließlich lokal in deinem iPhone/iPad gespeichert:</p>
+    <ul>
+      <li><strong>Profildaten:</strong> Name, gewählte Demenz-Stufe, Schwierigkeitsgrad</li>
+      <li><strong>Notizen:</strong> Titel, Inhalt und Symbol selbst angelegter Erinnerungen</li>
+      <li><strong>Angehörige:</strong> Name, Beziehung, Geburtsdatum, optional ein Foto</li>
+      <li><strong>Übungsdaten:</strong> Anzahl gelöster Aufgaben, Trefferquoten je Kategorie, Streak (Tagesserie)</li>
+      <li><strong>Spielstände:</strong> Aktueller Stand laufender Spiele (Memory, Sudoku, Kniffel etc.)</li>
+      <li><strong>Einstellungen:</strong> Theme, Schriftgröße, Sprachausgabe, Benachrichtigungs-Zeiten</li>
+    </ul>
+    <p>
+      Diese Daten werden nicht an uns oder Dritte übertragen. Sie verbleiben in
+      der App-Sandbox auf deinem Gerät und werden beim Löschen der App entfernt.
+    </p>
+
+    <h3>3.2 Apple-Dienste</h3>
+    <p>Zur Bereitstellung bestimmter Funktionen nutzt Memovia folgende Apple-Dienste:</p>
+    <ul>
+      <li>
+        <strong>App Store / StoreKit</strong> (für die Premium-Funktion):
+        Käufe werden ausschließlich über Apple abgewickelt. Memovia erfährt nur,
+        <em>ob</em> ein Premium-Abo aktiv ist — nicht wer es gekauft hat,
+        nicht wann und nicht mit welchem Konto.
+      </li>
+      <li>
+        <strong>Push-Benachrichtigungen:</strong> Die Erinnerungen, dein Training
+        nicht zu vergessen, werden lokal auf dem Gerät erzeugt
+        (<code>UNUserNotificationCenter</code>). Es findet <strong>keine
+        Server-Kommunikation</strong> für Benachrichtigungen statt.
+      </li>
+      <li>
+        <strong>Sprachausgabe (optional):</strong> Wenn du Fragen vorlesen
+        lässt, nutzt Memovia die Sprachsynthese deines Geräts (<code>AVSpeechSynthesizer</code>).
+        Es werden keine Daten an Apple oder Dritte gesendet.
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4. iCloud-Synchronisation (optional)</h2>
+    <p>
+      Wenn du in den Einstellungen deines iPhones iCloud-Backup für Memovia
+      aktivierst, werden deine App-Daten <strong>verschlüsselt</strong> in dein
+      persönliches iCloud-Konto übertragen. Memovia hat darauf keinen Zugriff —
+      die Daten liegen ausschließlich in deinem Apple-Konto.
+    </p>
+    <p>
+      Verantwortlich für die iCloud-Daten ist Apple. Die Datenschutzbestimmungen
+      von Apple findest du unter
+      <a href="https://www.apple.com/de/legal/privacy/" target="_blank" rel="noopener">apple.com/de/legal/privacy</a>.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>5. Fotos &amp; Kamera-Zugriff</h2>
+    <p>
+      Wenn du Fotos von Angehörigen hinzufügst, fragt Memovia nach der Erlaubnis,
+      auf deine Fotomediathek zuzugreifen. Diese Fotos werden:
+    </p>
+    <ul>
+      <li>Auf eine maximale Auflösung von 320×320 Pixel verkleinert</li>
+      <li>Nur lokal in der App gespeichert (nicht in deiner normalen Fotomediathek)</li>
+      <li>Nicht an Server, nicht an Memovia, nicht an Dritte übertragen</li>
+    </ul>
+    <p>
+      Du kannst die Erlaubnis jederzeit in den iOS-Einstellungen widerrufen.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>6. Rechtsgrundlagen</h2>
+    <p>
+      Die Verarbeitung deiner Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b
+      DSGVO (Erfüllung des Nutzungsvertrags) und, soweit erforderlich, deiner
+      Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO (z.B. für Push-Benachrichtigungen
+      und Foto-Zugriff).
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>7. Speicherdauer</h2>
+    <p>
+      Lokal gespeicherte Daten verbleiben so lange auf deinem Gerät, bis du sie
+      selbst löschst oder die App deinstallierst.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>8. Deine Rechte</h2>
+    <p>Nach DSGVO hast du folgende Rechte:</p>
+    <ul>
+      <li><strong>Auskunft</strong> (Art. 15 DSGVO) — was über dich gespeichert ist</li>
+      <li><strong>Berichtigung</strong> (Art. 16 DSGVO) — falsche Daten korrigieren</li>
+      <li><strong>Löschung</strong> (Art. 17 DSGVO) — „Recht auf Vergessen"</li>
+      <li><strong>Einschränkung</strong> (Art. 18 DSGVO) — Verarbeitung einschränken</li>
+      <li><strong>Widerspruch</strong> (Art. 21 DSGVO)</li>
+      <li><strong>Datenübertragbarkeit</strong> (Art. 20 DSGVO)</li>
+      <li><strong>Beschwerderecht</strong> bei einer Aufsichtsbehörde (Art. 77 DSGVO)</li>
+    </ul>
+    <p>
+      <strong>Praktischer Hinweis:</strong> Da Memovia keine Daten an unsere
+      Server überträgt, kannst du den Großteil dieser Rechte unmittelbar selbst
+      ausüben, indem du Einträge in der App löschst oder die App deinstallierst.
+      Bei Fragen wende dich bitte an die unter Punkt 1 genannte E-Mail-Adresse.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>9. Kinder und Demenzkranke</h2>
+    <p>
+      Memovia richtet sich nicht an Kinder unter 13 Jahren. Bei der Nutzung
+      durch Personen mit Demenz empfehlen wir die Begleitung durch eine
+      angehörige oder pflegende Person, insbesondere beim Anlegen von
+      Angehörigen-Profilen mit Fotos.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>10. Gesundheitlicher Hinweis</h2>
+    <div class="note">
+      <strong>Wichtig:</strong> Memovia ist <strong>kein Medizinprodukt</strong>
+      und ersetzt <strong>keine ärztliche Beratung, Diagnose oder Behandlung</strong>.
+      Die App dient ausschließlich der kognitiven Aktivierung und dem
+      Gedächtnistraining. Bei Verdacht auf eine Demenz-Erkrankung
+      konsultieren Sie bitte einen Arzt.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>11. Änderungen dieser Erklärung</h2>
+    <p>
+      Wir können diese Datenschutzerklärung anpassen, wenn sich die App oder
+      gesetzliche Anforderungen ändern. Die jeweils aktuelle Version findest du
+      stets unter dieser URL.
+    </p>
+  </div>
+
+  <!-- IMPRESSUM -->
+  <div class="card">
+    <h2>Impressum</h2>
+    <p>Angaben gemäß § 5 TMG:</p>
+    <p>
+      <strong>Silas Reihing</strong><br>
+      Schneckenburgstraße 56<br>
+      78467 Konstanz<br>
+      Deutschland
+    </p>
+    <h3>Kontakt</h3>
+    <p>
+      E-Mail: <a href="mailto:morgenunlimited@gmail.com">morgenunlimited@gmail.com</a></p>
+    <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
+    <p>
+      Silas Reihing, Adresse wie oben.
+    </p>
+    <h3>Haftungsausschluss</h3>
+    <p>
+      Für die Inhalte externer Links übernehmen wir keine Haftung. Für den
+      Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
+    </p>
+  </div>
+
+  <div class="meta">
+    <a href="anleitung.html">Zur Anleitung: So nutzen Sie Memovia</a><br><br>
+    Stand: Mai 2026<br>
+    © Memovia · Made with 💜 in Deutschland
+  </div>
+
 </div>
-
-<!-- ═══════════ Haupt-App ═══════════ -->
-<div id="app" class="hidden">
-
-  <!-- ── Tab 0: Start ── -->
-  <main id="screen-start" class="screen">
-    <div class="page">
-      <header class="home-header">
-        <div class="home-brand">
-          <img src="logo.png" alt="" class="home-logo">
-          <span class="serif home-brand-name">Memovia</span>
-        </div>
-        <div class="home-header-actions">
-          <button id="btnSettings" class="icon-btn" aria-label="Einstellungen" title="Einstellungen">⚙</button>
-          <button id="btnLogout" class="icon-btn" aria-label="Abmelden" title="Abmelden">⎋</button>
-        </div>
-      </header>
-
-      <div class="greeting">
-        <div class="greeting-phase"><span id="greetIcon">☀️</span> <span id="greetText">Schönen Tag</span></div>
-        <div id="greetName" class="serif greeting-name">Gast</div>
-      </div>
-
-      <section class="glass card" id="orientCard">
-        <div class="card-eyebrow">Zur Orientierung</div>
-        <div class="orient-row">
-          <span id="orientEmoji" class="orient-emoji">☀️</span>
-          <div>
-            <div class="serif orient-day">Heute ist <span id="orientWeekday">…</span>,</div>
-            <div class="orient-date">der <span id="orientDate">…</span></div>
-            <div class="orient-season" id="orientSeason">…</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="glass card">
-        <div class="card-eyebrow">Heute</div>
-        <div class="today-stats">
-          <div class="mini-stat"><span class="mini-icon">✓</span><span id="statToday" class="serif mini-value">0</span><span class="mini-label">Übungen</span></div>
-          <div class="vdivider"></div>
-          <div class="mini-stat"><span class="mini-icon">◎</span><span id="statRate" class="serif mini-value">–</span><span class="mini-label">richtig</span></div>
-          <div class="vdivider"></div>
-          <div class="mini-stat"><span class="mini-icon">Σ</span><span id="statTotal" class="serif mini-value">0</span><span class="mini-label">insgesamt</span></div>
-        </div>
-        <div id="motivation" class="card-foot">Noch keine Übung heute — ein guter Moment, um zu starten.</div>
-      </section>
-
-      <button class="glass card recommend" id="btnRecommend">
-        <span class="recommend-icon">🧠</span>
-        <span class="recommend-texts">
-          <span class="card-eyebrow">Empfehlung für jetzt</span>
-          <span class="serif recommend-title">Gehirnjogging</span>
-          <span class="card-foot">Ein paar Übungen tun dem Kopf gut.</span>
-        </span>
-        <span class="recommend-play">▶</span>
-      </button>
-
-      <div class="overview-row">
-        <button class="glass card overview-tile" data-goto="2">
-          <span class="tile-icon">🎲</span><span class="tile-title">Spiele</span><span id="tileGames" class="tile-detail">18 Spiele</span>
-        </button>
-        <button class="glass card overview-tile" data-goto="3">
-          <span class="tile-icon">📝</span><span class="tile-title">Notizen</span><span id="tileNotes" class="tile-detail">anlegen</span>
-        </button>
-        <button class="glass card overview-tile" data-goto="4">
-          <span class="tile-icon">👥</span><span class="tile-title">Angehörige</span><span id="tileFamily" class="tile-detail">anlegen</span>
-        </button>
-      </div>
-
-      <button class="glass card stats-link" id="btnStats">
-        <span class="tile-icon">📊</span>
-        <span class="recommend-texts">
-          <span class="tile-title">Fortschritt ansehen</span>
-          <span class="card-foot">Streak, Wochenübersicht und Stärken</span>
-        </span>
-        <span class="chevron">›</span>
-      </button>
-    </div>
-  </main>
-
-  <!-- ── Tab 1: Fragen ── -->
-  <main id="screen-fragen" class="screen hidden">
-    <div class="page">
-      <header class="section-header">
-        <div>
-          <h2 class="serif">Fragen</h2>
-          <div id="quizSession" class="section-sub">0 gelöst · 0 richtig</div>
-        </div>
-        <button id="btnQuizSettings" class="pill-btn">⚙ Einstellungen</button>
-      </header>
-      <div id="quizArea"></div>
-    </div>
-  </main>
-
-  <!-- ── Tab 2: Spiele ── -->
-  <main id="screen-spiele" class="screen hidden">
-    <div class="page">
-      <header class="section-header center"><h2 class="serif">Spiele</h2></header>
-      <div id="gamesGrid" class="games-grid"></div>
-    </div>
-  </main>
-
-  <!-- ── Tab 3: Notizen ── -->
-  <main id="screen-notizen" class="screen hidden">
-    <div class="page">
-      <header class="section-header">
-        <h2 class="serif">Notizen</h2>
-        <button id="btnAddNote" class="icon-btn big" aria-label="Neue Notiz">＋</button>
-      </header>
-      <div id="notesList"></div>
-    </div>
-  </main>
-
-  <!-- ── Tab 4: Angehörige ── -->
-  <main id="screen-familie" class="screen hidden">
-    <div class="page">
-      <header class="section-header">
-        <h2 class="serif">Angehörige</h2>
-        <button id="btnAddFamily" class="icon-btn big" aria-label="Hinzufügen">＋</button>
-      </header>
-      <div class="segmented" id="familySegments">
-        <button class="seg active" data-seg="0">Personen</button>
-        <button class="seg" data-seg="1">Erinnerungen</button>
-        <button class="seg" data-seg="2">Einblick</button>
-      </div>
-      <div id="familyContent"></div>
-    </div>
-  </main>
-
-  <!-- ── Tab-Leiste ── -->
-  <nav id="tabbar" aria-label="Hauptnavigation">
-    <button class="tab active" data-tab="0"><span class="tab-icon">🏠</span><span>Start</span></button>
-    <button class="tab" data-tab="1"><span class="tab-icon">🧠</span><span>Fragen</span></button>
-    <button class="tab" data-tab="2"><span class="tab-icon">🎲</span><span>Spiele</span></button>
-    <button class="tab" data-tab="3"><span class="tab-icon">📝</span><span>Notizen</span></button>
-    <button class="tab" data-tab="4"><span class="tab-icon">👥</span><span>Angehörige</span></button>
-  </nav>
-</div>
-
-<!-- ═══════════ Overlays ═══════════ -->
-<div id="sheetSettings" class="overlay sheet hidden" role="dialog" aria-label="Einstellungen"></div>
-<div id="sheetQuizSettings" class="overlay sheet hidden" role="dialog" aria-label="Fragen-Einstellungen"></div>
-<div id="sheetStats" class="overlay sheet hidden" role="dialog" aria-label="Fortschritt"></div>
-<div id="sheetEditor" class="overlay sheet hidden" role="dialog" aria-label="Bearbeiten"></div>
-<div id="gameOverlay" class="overlay game hidden" role="dialog" aria-label="Spiel"></div>
-<div id="streakOverlay" class="overlay hidden" role="dialog" aria-label="Belohnung"></div>
-
-<script src="data.js"></script>
-<script src="generator.js"></script>
-<script src="games.js"></script>
-<script src="games2.js"></script>
-<script src="games3.js"></script>
-<script src="app.js"></script>
 </body>
 </html>
