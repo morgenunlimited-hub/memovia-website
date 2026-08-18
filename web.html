@@ -8,7 +8,7 @@
 <meta name="description" content="Memovia Web-Testversion: Gehirnjogging und Spiele für Senioren und Menschen mit Demenz. Alle Funktionen kostenlos.">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=43.20">
 </head>
 <body>
 
@@ -174,11 +174,20 @@
 <div id="gameOverlay" class="overlay game hidden" role="dialog" aria-label="Spiel"></div>
 <div id="streakOverlay" class="overlay hidden" role="dialog" aria-label="Belohnung"></div>
 
-<script src="data.js"></script>
-<script src="generator.js"></script>
-<script src="games.js"></script>
-<script src="games2.js"></script>
-<script src="games3.js"></script>
-<script src="app.js"></script>
+<script src="data.js?v=43.20"></script>
+<script src="generator.js?v=43.20"></script>
+<script src="games.js?v=43.20"></script>
+<script src="games2.js?v=43.20"></script>
+<script src="games3.js?v=43.20"></script>
+<script src="app.js?v=43.20"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations()
+    .then(rs => rs.forEach(r => r.unregister()));
+  if (window.caches && caches.keys) {
+    caches.keys().then(ks => ks.forEach(k => caches.delete(k)));
+  }
+}
+</script>
 </body>
 </html>
