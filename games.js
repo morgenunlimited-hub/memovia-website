@@ -146,14 +146,26 @@ const Games = (() => {
   function fitIn(api, zone, node, ratio = 1) {
     node.classList.add("g-fit");
     zone.appendChild(node);
+    const areaEl = api.area;
+    const bodyEl = areaEl.parentElement;
+    const gapOf = (el) => parseFloat(getComputedStyle(el).rowGap) || 12;
+    const restH = (el, except) => [...el.children].reduce(
+      (s, c) => (c === except || c.contains(except)) ? s : s + c.offsetHeight, 0);
     const apply = () => {
-      const r = zone.getBoundingClientRect();
-      if (r.width < 60 || r.height < 60) return; // Layout noch nicht bereit → CSS-Fallback
-      node.style.width = Math.floor(Math.min(r.width, r.height * ratio)) + "px";
+      const zw = zone.getBoundingClientRect().width;
+      if (zw < 60) return; // Layout noch nicht bereit → CSS-Fallback
+      const cs = getComputedStyle(bodyEl);
+      const pad = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+      const availH = bodyEl.clientHeight - pad
+        - restH(bodyEl, areaEl) - gapOf(bodyEl) * Math.max(0, bodyEl.children.length - 1)
+        - restH(areaEl, zone) - gapOf(areaEl) * Math.max(0, areaEl.children.length - 1);
+      const w = Math.floor(Math.min(zw, Math.max(availH, 140) * ratio, 560));
+      node.style.width = w + "px";
     };
     if (typeof ResizeObserver !== "undefined") {
       const ro = new ResizeObserver(apply);
       ro.observe(zone);
+      ro.observe(bodyEl);
       api.onCleanup(() => ro.disconnect());
     } else {
       window.addEventListener("resize", apply);

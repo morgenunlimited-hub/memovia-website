@@ -776,3 +776,4 @@ button { -webkit-user-select: none; user-select: none; }
 .zv-node.done { background: rgba(77,166,90,0.9); }
 .zv-node.next { border: 3px solid var(--gold); }
 .zv-node.flash { background: rgba(228,60,50,0.8); }
+.g-svghost { max-height: 560px; }
