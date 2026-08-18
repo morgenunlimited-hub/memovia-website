@@ -7,7 +7,7 @@
 const Games2 = (() => {
   const gDiff = () => App.settings.gameDifficulty;
   const { rnd, pick, shuffled } = Generator;
-  const { endBanner } = Games.helpers;
+  const { endBanner, fillZone, fitIn } = Games.helpers;
 
   /* ══════════════ 11) Sudoku ══════════════ */
   function sudoku(api) {
@@ -42,7 +42,7 @@ const Games2 = (() => {
     let solution, puzzle, fixed, sel, errors, over, notesMode;
 
     const grid = el("div", "sudoku-grid");
-    api.area.appendChild(grid);
+    fitIn(api, fillZone(api), grid, 1);
     const pad = el("div", "numpad");
     api.area.appendChild(pad);
 
@@ -141,7 +141,7 @@ const Games2 = (() => {
     const N = 4;
     let tiles, moves, over;
     const board = el("div", "slide-grid");
-    api.area.appendChild(board);
+    fitIn(api, fillZone(api), board, 1);
 
     function neighborsOfBlank() {
       const b = tiles.indexOf(0);
@@ -195,8 +195,7 @@ const Games2 = (() => {
     const level = { leicht: "easy", mittel: "medium", schwer: "hard" }[gDiff()];
     let fig, drawn, current, over;
 
-    const svgWrap = el("div");
-    svgWrap.style.cssText = "max-width:420px;width:100%;margin:0 auto";
+    const svgWrap = el("div", "g-grow g-svghost");
     api.area.appendChild(svgWrap);
     const ctrl = el("div", "game-controls");
     const undo = el("button", "pill-btn", "⌫ Schritt zurück");
@@ -209,9 +208,14 @@ const Games2 = (() => {
     const edgeKey = (a, b) => a < b ? `${a}-${b}` : `${b}-${a}`;
 
     function newFigure() {
-      const pool = ONESTROKE_FIGURES[level] || [];
-      const all = [].concat(ONESTROKE_FIGURES.easy || [],
-        ONESTROKE_FIGURES.medium || [], ONESTROKE_FIGURES.hard || []);
+      const F = ONESTROKE_FIGURES;
+      const pools = {
+        easy: F.easy || [],
+        medium: (F.easy || []).concat(F.medium || []),
+        hard: (F.medium || []).concat(F.hard || []),
+      };
+      const all = (F.easy || []).concat(F.medium || [], F.hard || []);
+      const pool = pools[level] || [];
       fig = pick(pool.length ? pool : all);
       drawn = new Set(); current = null; over = false;
       next.style.display = "none";
@@ -294,7 +298,7 @@ const Games2 = (() => {
     const HUES = ["#E4574C","#4C7DE4","#4DA65A","#E9C33B","#9B59D0","#E88A2E","#3BB7C4","#D45FA0"];
     let items, expectIdx, over, startT, mistakes;
 
-    const field = el("div", "hunt-field");
+    const field = el("div", "hunt-field g-grow");
     api.area.appendChild(field);
 
     function newGame() {

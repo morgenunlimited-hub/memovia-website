@@ -671,3 +671,24 @@ html, body { overflow-x: hidden; }
 button, .tab, svg, .os-svg { touch-action: manipulation; }
 button { -webkit-user-select: none; user-select: none; }
 .hunt-field { height: min(62dvh, 460px); }
+
+/* ── Raumfüllende Spielflächen (ohne Verzerrung) ── */
+.game-body { min-height: 0; }
+.g-fill {
+  flex: 1 1 0; min-height: 0; width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px;
+}
+.g-fit { max-width: none !important; flex: 0 0 auto; }
+.g-grow {
+  flex: 1 1 0 !important; min-height: 140px; width: 100%;
+  max-width: none !important; height: auto !important; aspect-ratio: auto !important;
+}
+.g-scroll { flex: 1 1 0; min-height: 150px; overflow-y: auto; width: 100%; max-width: none; }
+.wc-log.g-scroll { max-height: none; }
+.g-svghost { display: flex; align-items: center; justify-content: center; min-height: 0; }
+.g-svghost svg, .g-svghost .os-svg { width: 100%; height: 100%; max-width: none; margin: 0; display: block; }
+
+/* Spiel-Overlay als Flex-Wurzel: Kopf fix, Body scrollt, Zonen messen echte Resthöhe */
+#gameOverlay { display: flex; flex-direction: column; overflow: hidden; }
+#gameOverlay .game-head { flex: 0 0 auto; }

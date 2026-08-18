@@ -62,7 +62,7 @@ const Games = (() => {
   }
 
   /* ── Vollbild-Overlay ── */
-  let cleanup = null;
+  let cleanups = [];
   function open(game) {
     Speech.stop();
     const ov = $("#gameOverlay");
@@ -83,7 +83,8 @@ const Games = (() => {
     ov.classList.remove("hidden");
 
     const start = () => {
-      if (cleanup) { try { cleanup(); } catch {} cleanup = null; }
+      cleanups.forEach((fn) => { try { fn(); } catch {} });
+      cleanups = [];
       body.innerHTML = "";
       // "So geht's"-Box (einklappbar)
       const howBox = el("details", "glass card");
@@ -93,12 +94,12 @@ const Games = (() => {
       const status = el("div", "game-status");
       body.appendChild(status);
       const area = el("div");
-      area.style.cssText = "display:flex;flex-direction:column;gap:12px";
+      area.style.cssText = "display:flex;flex-direction:column;gap:12px;flex:1 1 auto;min-height:0;width:100%";
       body.appendChild(area);
       const api = {
         area, status,
         setStatus: (t) => { status.textContent = t; },
-        onCleanup: (fn) => { cleanup = fn; },
+        onCleanup: (fn) => { cleanups.push(fn); },
         restart: start,
       };
       game.run(api);
@@ -107,7 +108,8 @@ const Games = (() => {
     start();
   }
   function close() {
-    if (cleanup) { try { cleanup(); } catch {} cleanup = null; }
+    cleanups.forEach((fn) => { try { fn(); } catch {} });
+    cleanups = [];
     $("#gameOverlay").classList.add("hidden");
     $("#gameOverlay").innerHTML = "";
   }
@@ -127,6 +129,34 @@ const Games = (() => {
     if (won === true) Feedback.success();
     else if (won === false) Feedback.error();
   };
+
+  /* Raumfüllung: Zone nimmt den Restplatz ein; fitIn passt eine Fläche
+     verzerrungsfrei auf min(Breite, Höhe·ratio) an. ratio = Breite/Höhe. */
+  const fillZone = (api) => {
+    const z = el("div", "g-fill");
+    api.area.appendChild(z);
+    return z;
+  };
+  function fitIn(api, zone, node, ratio = 1) {
+    node.classList.add("g-fit");
+    zone.appendChild(node);
+    const apply = () => {
+      const r = zone.getBoundingClientRect();
+      if (r.width < 60 || r.height < 60) return; // Layout noch nicht bereit → CSS-Fallback
+      node.style.width = Math.floor(Math.min(r.width, r.height * ratio)) + "px";
+    };
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(apply);
+      ro.observe(zone);
+      api.onCleanup(() => ro.disconnect());
+    } else {
+      window.addEventListener("resize", apply);
+      api.onCleanup(() => window.removeEventListener("resize", apply));
+    }
+    if (typeof requestAnimationFrame !== "undefined") requestAnimationFrame(apply);
+    apply();
+    return node;
+  }
 
   /* ══════════════ 1) Paare (Memory) ══════════════ */
   const MEMORY_SYMBOLS_GAME = ["🌻","🍎","🐶","🚗","⭐️","🎈","🦋","🍀","🐱","🌹",
@@ -152,7 +182,7 @@ const Games = (() => {
     const { row: scores, chips } = scoreRow([["Sie"], ["Computer"]]);
     api.area.appendChild(scores);
     const board = el("div", "board tight");
-    api.area.appendChild(board);
+    fitIn(api, fillZone(api), board, 1);
 
     function newGame() {
       const pairCount = boardSize * boardSize / 2;
@@ -263,8 +293,7 @@ const Games = (() => {
     let grid, over, turn;
     const board = el("div", "board tight");
     board.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
-    board.style.maxWidth = "440px";
-    api.area.appendChild(board);
+    fitIn(api, fillZone(api), board, 7 / 6);
 
     const reset = () => { grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0)); over = false; turn = 1; render(); api.setStatus("Sie beginnen — Rot."); };
 
@@ -413,7 +442,7 @@ const Games = (() => {
     let round, points, word, color, startT, times;
 
     const wordEl = el("div", "stroop-word");
-    api.area.appendChild(wordEl);
+    fillZone(api).appendChild(wordEl);
     const btnRow = el("div", "color-row");
     api.area.appendChild(btnRow);
 
@@ -458,7 +487,7 @@ const Games = (() => {
     const dictSet = new Set(MEMOVIA_DATA.wordChainDict.map(w => w.toUpperCase()));
     let used, lastLetter, over;
 
-    const log = el("div", "wc-log");
+    const log = el("div", "wc-log g-scroll");
     api.area.appendChild(log);
     const inputRow = el("div");
     inputRow.style.cssText = "display:flex;gap:8px";
@@ -549,7 +578,7 @@ const Games = (() => {
     const secret = Array.from({ length: codeLen }, () => rnd(PALETTE.length));
     let current = [], tries = [], over = false;
 
-    const history = el("div");
+    const history = el("div", "g-scroll");
     history.style.cssText = "display:flex;flex-direction:column;gap:8px";
     api.area.appendChild(history);
     const curRow = el("div", "sh-row");
@@ -642,8 +671,7 @@ const Games = (() => {
     let cells, over, turn;
     const board = el("div", "board");
     board.style.gridTemplateColumns = "repeat(3, 1fr)";
-    board.style.maxWidth = "340px";
-    api.area.appendChild(board);
+    fitIn(api, fillZone(api), board, 1);
 
     const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
     const winnerOf = (c) => {
@@ -723,14 +751,14 @@ const Games = (() => {
     const maxErr = gDiff() === "leicht" ? 8 : 6;
     let errors = 0, guessed = new Set(), over = false;
 
-    const svgWrap = el("div");
-    svgWrap.style.cssText = "max-width:220px;margin:0 auto;width:60%";
-    api.area.appendChild(svgWrap);
+    const hz = fillZone(api);
+    const svgWrap = el("div", "g-grow g-svghost");
+    hz.appendChild(svgWrap);
     const hintEl = el("div", "setting-sub", "💡 " + esc(hint));
     hintEl.style.textAlign = "center";
-    api.area.appendChild(hintEl);
+    hz.appendChild(hintEl);
     const wordEl = el("div", "hang-word");
-    api.area.appendChild(wordEl);
+    hz.appendChild(wordEl);
     const kb = el("div", "keyboard");
     api.area.appendChild(kb);
 
@@ -801,7 +829,7 @@ const Games = (() => {
 
     const boardEl = el("div", "board tight");
     boardEl.style.gridTemplateColumns = `repeat(${N}, 1fr)`;
-    api.area.appendChild(boardEl);
+    fitIn(api, fillZone(api), boardEl, 1);
 
     const inB = (r, c) => r >= 0 && r < N && c >= 0 && c < N;
     const P = { EMPTY: 0, W: 1, WQ: 2, B: 3, BQ: 4 };
@@ -980,6 +1008,7 @@ const Games = (() => {
     let round, times, timer, state, goTime;
     const pad = el("button", "reaction-pad");
     api.area.appendChild(pad);
+    pad.classList.add("g-grow");
     const best = parseInt(Store.get(`memovia_reaction_best_${userId()}`, "0"), 10);
     if (best) api.area.appendChild(el("div", "setting-sub",
       `Ihre Bestzeit: ${best} ms`)).style.textAlign = "center";
@@ -1049,7 +1078,7 @@ const Games = (() => {
     const OPTS = [["✊", "Stein"], ["✋", "Papier"], ["✌️", "Schere"]];
     let you = 0, ai = 0, over = false;
     const stage = el("div", "rps-stage", "❔&nbsp;&nbsp;&nbsp;❔");
-    api.area.appendChild(stage);
+    fillZone(api).appendChild(stage);
     const { row, chips } = scoreRow([["Sie: 0"], ["Computer: 0"]]);
     api.area.appendChild(row);
     const btns = el("div", "rps-row");
@@ -1081,5 +1110,5 @@ const Games = (() => {
   }
 
   return { list, renderGrid, open, close,
-           helpers: { gDiff, scoreRow, endBanner } };
+           helpers: { gDiff, scoreRow, endBanner, fillZone, fitIn } };
 })();

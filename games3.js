@@ -8,7 +8,7 @@
 (() => {
   const gDiff = () => App.settings.gameDifficulty;
   const { rnd, pick, shuffled } = Generator;
-  const { endBanner, scoreRow } = Games.helpers;
+  const { endBanner, scoreRow, fillZone, fitIn } = Games.helpers;
 
   /* ══════════════ 15) Wortsuche ══════════════ */
   function wordSearch(api) {
@@ -23,7 +23,7 @@
     api.area.appendChild(wordList);
     const gridEl = el("div", "ws-grid");
     gridEl.style.gridTemplateColumns = `repeat(${SIZE}, 1fr)`;
-    api.area.appendChild(gridEl);
+    fitIn(api, fillZone(api), gridEl, 1);
 
     const DIRS = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]];
     const easyDirs = [[0,1],[1,0]];
@@ -146,12 +146,12 @@
     api.area.appendChild(label1);
     const enemyEl = el("div", "bs-grid");
     enemyEl.style.gridTemplateColumns = `repeat(${N}, 1fr)`;
-    api.area.appendChild(enemyEl);
+    fitIn(api, fillZone(api), enemyEl, 1);
     const label2 = el("div", "setting-h", "Ihre Flotte");
     api.area.appendChild(label2);
     const mineEl = el("div", "bs-grid");
     mineEl.style.gridTemplateColumns = `repeat(${N}, 1fr)`;
-    api.area.appendChild(mineEl);
+    fitIn(api, fillZone(api), mineEl, 1);
 
     const emptyBoard = () => Array.from({ length: N }, () => Array(N).fill(0)); // 0 Wasser, >0 Schiffs-Id
     const emptyShots = () => Array.from({ length: N }, () => Array(N).fill(null)); // null | "miss" | "hit"
@@ -333,7 +333,7 @@
     const rollBtn = el("button", "btn-accent", "🎲 Würfeln");
     rollBtn.style.alignSelf = "center";
     api.area.appendChild(rollBtn);
-    const table = el("div", "glass score-table");
+    const table = el("div", "glass score-table g-scroll");
     api.area.appendChild(table);
 
     const FACES = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
@@ -471,8 +471,7 @@
     const btn2P = el("button", "pill-btn", "👥 Zu zweit");
     modeRow.appendChild(btnPC); modeRow.appendChild(btn2P);
     api.area.appendChild(modeRow);
-    const svgWrap = el("div");
-    svgWrap.style.cssText = "max-width:440px;width:100%;margin:0 auto";
+    const svgWrap = el("div", "g-grow g-svghost");
     api.area.appendChild(svgWrap);
 
     const other = (p) => (p === 1 ? 2 : 1);
