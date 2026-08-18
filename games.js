@@ -13,6 +13,12 @@ const Games = (() => {
   const list = [
     { emoji: "🃏", title: "Paare", subtitle: "Kartenpaare finden gegen den Computer.",
       howTo: ["Decken Sie abwechselnd zwei Karten auf.", "Finden Sie zusammengehörende Paare.", "Wer mehr Paare findet, gewinnt."], run: memoryGame },
+    { emoji: "🕰️", title: "Uhr stellen", subtitle: "Die Zeiger auf die genannte Uhrzeit drehen.",
+      howTo: ["Lesen Sie die Uhrzeit in Worten, z.B. halb drei.", "Drehen Sie die Zeiger mit dem Finger oder den Tasten.", "Tippen Sie auf Prüfen — acht Runden insgesamt."], run: (a) => Games2.uhrStellen(a) },
+    { emoji: "💶", title: "Geld zählen", subtitle: "Münzen antippen und Beträge in die Kasse legen.",
+      howTo: ["Legen Sie den genannten Betrag mit Münzen in die Kasse.", "Gelegte Münzen antippen nimmt sie wieder heraus.", "Bei schwer berechnen Sie das Rückgeld auf 5 Euro."], run: (a) => Games2.geldZaehlen(a) },
+    { emoji: "🔢", title: "Zahlen verbinden", subtitle: "Verstreute Zahlen der Reihe nach antippen.",
+      howTo: ["Suchen Sie die 1 und tippen Sie sie an.", "Tippen Sie dann der Reihe nach weiter — eine Linie verbindet die Punkte.", "Bei schwer wechseln sich Zahlen und Buchstaben ab: 1, A, 2, B …"], run: (a) => Games2.zahlenVerbinden(a) },
     { emoji: "🔴", title: "Vier in einer Reihe", subtitle: "Vier Steine in einer Reihe gegen den Computer.",
       howTo: ["Werfen Sie abwechselnd Steine in die Spalten.", "Bringen Sie vier Steine in eine Reihe.", "Waagerecht, senkrecht oder schräg zählt."], run: connectFour },
     { emoji: "🌈", title: "Farben-Test", subtitle: "Erkennen Sie die Schriftfarbe der Wörter.",

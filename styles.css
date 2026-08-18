@@ -692,3 +692,87 @@ button { -webkit-user-select: none; user-select: none; }
 /* Spiel-Overlay als Flex-Wurzel: Kopf fix, Body scrollt, Zonen messen echte Resthöhe */
 #gameOverlay { display: flex; flex-direction: column; overflow: hidden; }
 #gameOverlay .game-head { flex: 0 0 auto; }
+
+/* ── Uhr stellen · Geld zählen · Zahlen verbinden ── */
+.gm-task {
+  text-align: center; font-size: calc(16px * var(--font-scale));
+  line-height: 1.5; padding: 0 8px;
+}
+.gm-task .gm-big {
+  font-family: var(--serif); font-size: calc(25px * var(--font-scale));
+  display: inline-block; margin-top: 2px;
+}
+.gm-say {
+  width: 34px; height: 34px; font-size: 16px; vertical-align: middle; margin-left: 6px;
+}
+.gm-summe {
+  margin-top: 4px; font-size: calc(21px * var(--font-scale));
+  font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums;
+}
+.gm-feedback {
+  min-height: 28px; text-align: center;
+  font-size: calc(14px * var(--font-scale)); font-weight: 600;
+  display: flex; align-items: center; justify-content: center; padding: 0 10px;
+}
+.gm-feedback.ok { color: #6FCF7C; }
+.gm-feedback.warn { color: var(--gold); }
+.gm-feedback.dim { color: rgba(255,255,255,0.55); font-weight: 500; }
+.stell-grid {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px; width: 100%; max-width: 560px; margin: 0 auto;
+}
+.clock-svg { touch-action: none; cursor: grab; }
+.clock-svg:active { cursor: grabbing; }
+
+.kasse {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--glass); border: 1px solid var(--stroke);
+  border-radius: 18px; padding: 10px;
+}
+.kasse-leer {
+  text-align: center; font-size: calc(14px * var(--font-scale));
+  color: rgba(255,255,255,0.6); line-height: 1.6;
+}
+.kasse-leer::first-line { font-size: 38px; }
+.kasse-inner {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center; justify-content: center; max-width: 560px;
+}
+.muenz-row {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  align-items: center; justify-content: center;
+}
+.muenze {
+  position: relative; border-radius: 50%; border: none; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.35); flex: none;
+}
+.muenze .kern {
+  position: absolute; inset: 16%; border-radius: 50%;
+}
+.muenze .lbl {
+  position: relative; font-weight: 800; color: rgba(0,0,0,0.75);
+  line-height: 1; white-space: nowrap;
+}
+.muenze:disabled { opacity: 0.5; }
+
+.zv-field {
+  position: relative; overflow: hidden;
+  background: var(--glass); border: 1px solid var(--stroke);
+  border-radius: 18px;
+}
+.zv-line {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none;
+}
+.zv-node {
+  position: absolute; width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255,255,255,0.14);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  color: #fff; font-size: 22px; font-weight: 800; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.zv-node.done { background: rgba(77,166,90,0.9); }
+.zv-node.next { border: 3px solid var(--gold); }
+.zv-node.flash { background: rgba(228,60,50,0.8); }

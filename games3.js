@@ -686,5 +686,507 @@
     start("pc");
   }
 
-  Object.assign(Games2, { wordSearch, battleship, kniffel, muehle });
+
+  /* ══════════════ 19) Uhr stellen ══════════════ */
+  function uhrStellen(api) {
+    const RUNDEN = 8;
+    let totalMin, zielStunde, zielMinute, aufgabe, runde, richtig,
+        fehlversuch, geloest, fertig, letzterWinkel = null;
+
+    const kopf = el("div", "gm-task");
+    api.area.appendChild(kopf);
+    const hz = fillZone(api);
+    const svgWrap = el("div", "g-grow g-svghost");
+    hz.appendChild(svgWrap);
+    const fb = el("div", "gm-feedback");
+    api.area.appendChild(fb);
+    const stellRow = el("div", "stell-grid");
+    [["−1 Std.", -60], ["+1 Std.", 60], ["−5 Min.", -5], ["+5 Min.", 5]].forEach(([t, m]) => {
+      const b = el("button", "pill-btn", t);
+      b.onclick = () => { drehen(m); render(); };
+      stellRow.appendChild(b);
+    });
+    api.area.appendChild(stellRow);
+    const check = el("button", "btn-accent", "✓ Prüfen");
+    check.style.alignSelf = "center";
+    check.style.minWidth = "220px";
+    check.onclick = () => { if (fertig) { neuesSpiel(); } else if (geloest) naechsteRunde(); else pruefen(); };
+    api.area.appendChild(check);
+
+    const minute = () => ((totalMin % 60) + 60) % 60;
+    const NAMEN = ["", "eins", "zwei", "drei", "vier", "fünf", "sechs",
+      "sieben", "acht", "neun", "zehn", "elf", "zwölf"];
+    function zeitInWorten(st, mi) {
+      const h = NAMEN[st], hP = NAMEN[st % 12 + 1];
+      switch (mi) {
+        case 0: return st === 1 ? "ein Uhr" : `${h} Uhr`;
+        case 5: return `fünf nach ${h}`;
+        case 10: return `zehn nach ${h}`;
+        case 15: return `Viertel nach ${h}`;
+        case 20: return `zwanzig nach ${h}`;
+        case 25: return `fünf vor halb ${hP}`;
+        case 30: return `halb ${hP}`;
+        case 35: return `fünf nach halb ${hP}`;
+        case 40: return `zwanzig vor ${hP}`;
+        case 45: return `Viertel vor ${hP}`;
+        case 50: return `zehn vor ${hP}`;
+        case 55: return `fünf vor ${hP}`;
+        default: return `${h} Uhr ${mi}`;
+      }
+    }
+
+    function setFb(text, cls) { fb.textContent = text; fb.className = "gm-feedback" + (cls ? " " + cls : ""); }
+
+    function render() {
+      api.setStatus(`Runde ${Math.min(runde, RUNDEN)} von ${RUNDEN} · ${richtig} richtig`);
+      kopf.innerHTML = fertig
+        ? `<b>Alle Runden geschafft! 🎉</b><br>${richtig} von ${RUNDEN} Uhrzeiten richtig gestellt`
+        : `Stellen Sie die Uhr auf:<br><b class="gm-big">${esc(aufgabe)}</b>
+           <button class="icon-btn gm-say" aria-label="Vorlesen">🔊</button>`;
+      const say = kopf.querySelector(".gm-say");
+      if (say) say.onclick = () => Speech.speak(`Stellen Sie die Uhr auf ${aufgabe}.`);
+      check.textContent = fertig ? "↺ Neues Spiel" : geloest ? "Weiter →" : "✓ Prüfen";
+      stellRow.style.visibility = fertig ? "hidden" : "visible";
+      stellRow.querySelectorAll("button").forEach(b => { b.disabled = geloest || fertig; });
+
+      const stundenW = (((totalMin % 720) + 720) % 720) / 720 * 360;
+      const minutenW = minute() * 6;
+      let ticks = "";
+      for (let m = 0; m < 60; m++) {
+        const h5 = m % 5 === 0;
+        ticks += `<g transform="rotate(${m * 6} 100 100)">
+          <line x1="100" y1="6" x2="100" y2="${h5 ? 15 : 11}"
+            stroke="rgba(255,255,255,${h5 ? 0.9 : 0.35})" stroke-width="${h5 ? 3 : 1.5}"
+            stroke-linecap="round"/></g>`;
+      }
+      let zahlen = "";
+      for (let h = 1; h <= 12; h++) {
+        const a = h / 12 * 2 * Math.PI;
+        const x = 100 + Math.sin(a) * 75, y = 100 - Math.cos(a) * 75;
+        zahlen += `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle"
+          dominant-baseline="central" font-size="19" font-weight="bold" fill="#fff">${h}</text>`;
+      }
+      svgWrap.innerHTML = `<svg class="os-svg clock-svg" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="96" fill="rgba(255,255,255,0.08)"
+          stroke="rgba(255,255,255,0.35)" stroke-width="3"/>
+        ${ticks}${zahlen}
+        <g transform="rotate(${stundenW.toFixed(2)} 100 100)">
+          <line x1="100" y1="100" x2="100" y2="56" stroke="#D4A117"
+            stroke-width="7" stroke-linecap="round"/></g>
+        <g transform="rotate(${minutenW} 100 100)">
+          <line x1="100" y1="100" x2="100" y2="32" stroke="#fff"
+            stroke-width="3.6" stroke-linecap="round"/></g>
+        <circle cx="100" cy="100" r="5.5" fill="#D4A117"/>
+      </svg>`;
+      bindDrag(svgWrap.querySelector("svg"));
+    }
+
+    function drehen(min) {
+      if (geloest || fertig) return;
+      totalMin = (((totalMin + min) % 720) + 720) % 720;
+      Feedback.tap();
+      if (!fb.textContent.startsWith("Noch nicht")) setFb("Kleiner Zeiger: Stunden · Großer Zeiger: Minuten", "dim");
+    }
+
+    function bindDrag(svg) {
+      let active = false;
+      const winkelAus = (e) => {
+        const r = svg.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        if (dx * dx + dy * dy < (r.width * 0.06) ** 2) return null;
+        let w = Math.atan2(dx, -dy) * 180 / Math.PI;
+        if (w < 0) w += 360;
+        return w;
+      };
+      svg.addEventListener("pointerdown", (e) => {
+        if (geloest || fertig) return;
+        active = true;
+        try { svg.setPointerCapture(e.pointerId); } catch {}
+        letzterWinkel = winkelAus(e);
+      });
+      svg.addEventListener("pointermove", (e) => {
+        if (!active || geloest || fertig) return;
+        const w = winkelAus(e);
+        if (w === null) return;
+        if (letzterWinkel !== null) {
+          let delta = w - letzterWinkel;
+          if (delta > 180) delta -= 360;
+          if (delta < -180) delta += 360;
+          const md = Math.round(delta / 6);
+          if (md !== 0) {
+            totalMin = (((totalMin + md) % 720) + 720) % 720;
+            letzterWinkel = w;
+            render();
+          }
+        } else letzterWinkel = w;
+      });
+      const ende = () => {
+        if (!active) return;
+        active = false;
+        letzterWinkel = null;
+        totalMin = ((Math.round(totalMin / 5) * 5) % 720 + 720) % 720;
+        render();
+      };
+      svg.addEventListener("pointerup", ende);
+      svg.addEventListener("pointercancel", ende);
+    }
+
+    function pruefen() {
+      const ziel = (zielStunde % 12) * 60 + zielMinute;
+      if (((totalMin % 720) + 720) % 720 === ziel) {
+        richtig++; geloest = true;
+        Feedback.success();
+        setFb("Richtig! Sehr gut.", "ok");
+      } else {
+        fehlversuch++;
+        if (fehlversuch >= 2) {
+          totalMin = ziel; geloest = true;
+          Feedback.tap();
+          setFb(`So wäre es richtig: ${aufgabe}.`, "");
+        } else {
+          Feedback.error();
+          setFb("Noch nicht ganz — schauen Sie noch einmal.", "warn");
+        }
+      }
+      render();
+    }
+    function naechsteRunde() {
+      if (runde >= RUNDEN) {
+        fertig = true;
+        endBanner(api, `${richtig} von ${RUNDEN} Uhrzeiten richtig gestellt`,
+          richtig >= 6 ? true : richtig >= 4 ? null : false);
+        render();
+        return;
+      }
+      runde++; neueAufgabe(); render();
+    }
+    function neueAufgabe() {
+      geloest = false; fehlversuch = 0;
+      setFb("Kleiner Zeiger: Stunden · Großer Zeiger: Minuten", "dim");
+      const altS = zielStunde, altM = zielMinute;
+      let s = rnd(12) + 1;
+      const d = gDiff();
+      const m = d === "leicht" ? 0 : d === "mittel" ? pick([0, 15, 30, 45]) : rnd(12) * 5;
+      if (s === altS && m === altM) s = s % 12 + 1;
+      zielStunde = s; zielMinute = m;
+      aufgabe = zeitInWorten(s, m);
+      let start = rnd(144) * 5;
+      if (start === (s % 12) * 60 + m) start = (start + 60) % 720;
+      totalMin = start;
+    }
+    function neuesSpiel() { runde = 1; richtig = 0; fertig = false; neueAufgabe(); render(); api.setStatus(`Runde 1 von ${RUNDEN} · 0 richtig`); }
+
+    runde = 1; richtig = 0; fertig = false;
+    zielStunde = 0; zielMinute = -1;
+    neueAufgabe(); render();
+  }
+
+  /* ══════════════ 20) Geld zählen ══════════════ */
+  function geldZaehlen(api) {
+    const RUNDEN = 8, MAX = 14;
+    let kasse, zielCent, aufgabe, runde, richtig, fehlversuch,
+        geloest, fertig, istRueckgeld;
+
+    const stage = () => parseInt(localStorage.getItem("memovia_dementia_stage") || "0", 10);
+    const palette = () => {
+      const d = gDiff();
+      if (d === "leicht") return [200, 100];
+      if (d === "mittel") return [200, 100, 50, 20, 10];
+      return stage() <= 2 ? [200, 100, 50, 20, 10, 5, 2, 1] : [200, 100, 50, 20, 10];
+    };
+    const summe = () => kasse.reduce((a, b) => a + b, 0);
+    const alsEuro = (c) => `${Math.floor(c / 100)},${String(c % 100).padStart(2, "0")} €`;
+
+    const kopf = el("div", "gm-task");
+    api.area.appendChild(kopf);
+    const zone = fillZone(api);
+    const kasseEl = el("div", "kasse g-grow");
+    zone.appendChild(kasseEl);
+    const fb = el("div", "gm-feedback");
+    api.area.appendChild(fb);
+    const muenzRow = el("div", "muenz-row");
+    api.area.appendChild(muenzRow);
+    const btnRow = el("div", "game-controls");
+    const zurueck = el("button", "pill-btn", "⌫ Alles zurück");
+    const check = el("button", "btn-accent", "✓ Prüfen");
+    check.style.minWidth = "170px";
+    btnRow.appendChild(zurueck); btnRow.appendChild(check);
+    api.area.appendChild(btnRow);
+    zurueck.onclick = () => { if (!geloest && kasse.length) { kasse = []; setFb("", "dim"); Feedback.tap(); render(); } };
+    check.onclick = () => { if (fertig) neuesSpiel(); else if (geloest) naechsteRunde(); else pruefen(); };
+
+    function setFb(t, cls) { fb.textContent = t || "Gelegte Münzen antippen, um sie wieder herauszunehmen."; fb.className = "gm-feedback " + (t ? cls : "dim"); }
+
+    function coinEl(cent, d) {
+      const gold = "#D4A117", silber = "#D1D1D1", kupfer = "#B87652";
+      let ring, kern;
+      if (cent === 200) { ring = silber; kern = gold; }
+      else if (cent === 100) { ring = gold; kern = silber; }
+      else if (cent <= 5) { ring = kupfer; kern = kupfer; }
+      else { ring = gold; kern = gold; }
+      const b = el("button", "muenze");
+      b.style.cssText = `width:${d}px;height:${d}px;background:${ring}`;
+      b.innerHTML = `<span class="kern" style="background:${kern}"></span>
+        <span class="lbl" style="font-size:${Math.round(d * (cent >= 100 ? 0.30 : 0.25))}px">
+        ${cent >= 100 ? (cent / 100) + " €" : cent + " ct"}</span>`;
+      return b;
+    }
+
+    function render() {
+      api.setStatus(`Runde ${Math.min(runde, RUNDEN)} von ${RUNDEN} · ${richtig} richtig`);
+      kopf.innerHTML = fertig
+        ? `<b>Alle Runden geschafft! 🎉</b><br>${richtig} von ${RUNDEN} Beträgen richtig gelegt`
+        : `${esc(aufgabe)} <button class="icon-btn gm-say" aria-label="Vorlesen">🔊</button>
+           <div class="gm-summe">${istRueckgeld ? "Rückgeld" : "In der Kasse"}: ${alsEuro(summe())}</div>`;
+      const say = kopf.querySelector(".gm-say");
+      if (say) say.onclick = () => Speech.speak(aufgabe);
+      check.textContent = fertig ? "↺ Neues Spiel" : geloest ? "Weiter →" : "✓ Prüfen";
+      zurueck.disabled = geloest || fertig || !kasse.length;
+      muenzRow.style.visibility = fertig ? "hidden" : "visible";
+
+      kasseEl.innerHTML = "";
+      if (!kasse.length) {
+        kasseEl.appendChild(el("div", "kasse-leer",
+          `🪙<br>${istRueckgeld
+            ? "Tippen Sie unten auf die Münzen,<br>um das Rückgeld zusammenzulegen."
+            : "Tippen Sie unten auf die Münzen,<br>um Geld hineinzulegen."}`));
+      } else {
+        const inner = el("div", "kasse-inner");
+        const d = kasse.length > 8 ? 52 : 62;
+        kasse.forEach((cent, idx) => {
+          const c = coinEl(cent, d);
+          c.disabled = geloest || fertig;
+          c.onclick = () => { kasse.splice(idx, 1); setFb("", "dim"); Feedback.tap(); render(); };
+          inner.appendChild(c);
+        });
+        kasseEl.appendChild(inner);
+      }
+      muenzRow.innerHTML = "";
+      const pal = palette();
+      const pd = pal.length > 5 ? 42 : 58;
+      pal.forEach(cent => {
+        const c = coinEl(cent, pd);
+        c.disabled = geloest || fertig;
+        c.onclick = () => lege(cent);
+        muenzRow.appendChild(c);
+      });
+    }
+
+    function lege(cent) {
+      if (geloest || fertig) return;
+      if (kasse.length >= MAX) {
+        Feedback.error();
+        setFb("Mehr Münzen passen nicht — nehmen Sie erst etwas heraus.", "warn");
+        return;
+      }
+      kasse.push(cent);
+      Feedback.tap();
+      setFb("", "dim");
+      render();
+    }
+    function passendeMuenzen(betrag) {
+      let rest = betrag; const out = [];
+      for (const w of [200, 100, 50, 20, 10, 5, 2, 1]) while (rest >= w) { out.push(w); rest -= w; }
+      return out;
+    }
+    function pruefen() {
+      if (summe() === zielCent) {
+        richtig++; geloest = true;
+        Feedback.success();
+        setFb("Richtig! Sehr gut.", "ok");
+      } else {
+        fehlversuch++;
+        if (fehlversuch >= 2) {
+          kasse = passendeMuenzen(zielCent);
+          geloest = true;
+          Feedback.tap();
+          setFb(`So stimmt es: ${alsEuro(zielCent)}.`, "");
+        } else {
+          Feedback.error();
+          setFb(summe() > zielCent
+            ? "Das ist zu viel — nehmen Sie etwas heraus."
+            : "Das ist noch zu wenig — legen Sie etwas dazu.", "warn");
+        }
+      }
+      render();
+    }
+    function naechsteRunde() {
+      if (runde >= RUNDEN) {
+        fertig = true;
+        endBanner(api, `${richtig} von ${RUNDEN} Beträgen richtig gelegt`,
+          richtig >= 6 ? true : richtig >= 4 ? null : false);
+        render();
+        return;
+      }
+      runde++; neueAufgabe(); render();
+    }
+    function neueAufgabe() {
+      geloest = false; fehlversuch = 0; kasse = []; istRueckgeld = false;
+      setFb("", "dim");
+      const alt = zielCent;
+      const d = gDiff();
+      if (d === "leicht") {
+        let z = (rnd(5) + 1) * 100;
+        if (z === alt) z = z % 500 + 100;
+        zielCent = z;
+        aufgabe = `Legen Sie genau ${alsEuro(z)} in die Kasse.`;
+      } else if (d === "mittel") {
+        let z = (rnd(39) + 12) * 10;
+        if (z === alt) z = z === 500 ? 120 : z + 10;
+        zielCent = z;
+        aufgabe = `Legen Sie genau ${alsEuro(z)} in die Kasse.`;
+      } else {
+        istRueckgeld = true;
+        let preis;
+        if (stage() <= 2) {
+          preis = rnd(440) + 60;
+          if (500 - preis === alt) preis = preis === 499 ? 60 : preis + 1;
+        } else {
+          preis = (rnd(44) + 6) * 10;
+          if (500 - preis === alt) preis = preis === 490 ? 60 : preis + 10;
+        }
+        zielCent = 500 - preis;
+        aufgabe = `Der Einkauf kostet ${alsEuro(preis)}. Der Kunde bezahlt mit einem 5-€-Schein. Geben Sie das Rückgeld zurück.`;
+      }
+    }
+    function neuesSpiel() { runde = 1; richtig = 0; fertig = false; neueAufgabe(); render(); }
+
+    runde = 1; richtig = 0; fertig = false; zielCent = -1;
+    neueAufgabe(); render();
+  }
+
+  /* ══════════════ 21) Zahlen verbinden ══════════════ */
+  function zahlenVerbinden(api) {
+    const RUNDEN = 5, D = 56;
+    let knoten, naechster, runde, fehler, geloest, fertig;
+
+    const kopf = el("div", "gm-task");
+    api.area.appendChild(kopf);
+    const zone = fillZone(api);
+    const field = el("div", "zv-field g-grow");
+    zone.appendChild(field);
+    const fb = el("div", "gm-feedback");
+    api.area.appendChild(fb);
+    const weiter = el("button", "btn-accent", "Weiter →");
+    weiter.style.alignSelf = "center";
+    weiter.style.minWidth = "220px";
+    weiter.onclick = () => { if (fertig) neuesSpiel(); else if (geloest) naechsteRunde(); };
+    api.area.appendChild(weiter);
+
+    const mitRing = () => gDiff() === "leicht";
+    const kopfText = () => gDiff() === "schwer"
+      ? "Tippen Sie abwechselnd Zahl und Buchstabe: 1, A, 2, B …"
+      : "Tippen Sie die Zahlen der Reihe nach an.";
+
+    function setFb(t, cls) { fb.textContent = t; fb.className = "gm-feedback " + cls; }
+
+    function drawLine() {
+      const svg = field.querySelector("svg.zv-line");
+      if (!svg) return;
+      const w = field.clientWidth, h = field.clientHeight;
+      svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+      const pts = knoten.filter(k => k.id < naechster)
+        .sort((a, b) => a.id - b.id)
+        .map(k => `${(k.rx * (w - D) + D / 2).toFixed(1)},${(k.ry * (h - D) + D / 2).toFixed(1)}`);
+      svg.innerHTML = pts.length > 1
+        ? `<polyline points="${pts.join(" ")}" fill="none" stroke="rgba(255,255,255,0.55)"
+             stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : "";
+    }
+
+    function render() {
+      api.setStatus(`Runde ${Math.min(runde, RUNDEN)} von ${RUNDEN} · ${fehler} Fehltipps`);
+      kopf.innerHTML = fertig
+        ? `<b>Alle Runden geschafft! 🎉</b>`
+        : `${esc(kopfText())} <button class="icon-btn gm-say" aria-label="Vorlesen">🔊</button>`;
+      const say = kopf.querySelector(".gm-say");
+      if (say) say.onclick = () => Speech.speak(kopfText());
+      weiter.disabled = !geloest && !fertig;
+      weiter.textContent = fertig ? "↺ Neues Spiel" : "Weiter →";
+
+      field.innerHTML = `<svg class="zv-line" preserveAspectRatio="none"></svg>`;
+      knoten.forEach(k => {
+        const done = k.id < naechster;
+        const istN = k.id === naechster;
+        const b = el("button", "zv-node"
+          + (done ? " done" : "")
+          + (istN && mitRing() && !geloest ? " next" : ""), esc(k.label));
+        b.style.left = `calc(${(k.rx * 100).toFixed(2)}% - ${(k.rx * D).toFixed(1)}px)`;
+        b.style.top = `calc(${(k.ry * 100).toFixed(2)}% - ${(k.ry * D).toFixed(1)}px)`;
+        b.onclick = () => tippe(k, b);
+        field.appendChild(b);
+      });
+      drawLine();
+
+      if (fertig) setFb(`Nur ${fehler} Fehltipps in ${RUNDEN} Runden — stark!`, "warn");
+      else if (geloest) setFb("Geschafft! Alle Punkte verbunden.", "ok");
+      else setFb(`Als Nächstes: ${knoten.find(k => k.id === naechster)?.label ?? ""}`, "dim");
+    }
+
+    function tippe(k, btn) {
+      if (geloest || fertig) return;
+      if (k.id === naechster) {
+        naechster++;
+        Feedback.tap();
+        if (naechster === knoten.length) {
+          geloest = true;
+          Feedback.success();
+        }
+        render();
+      } else if (k.id > naechster) {
+        fehler++;
+        Feedback.error();
+        btn.classList.add("flash");
+        setTimeout(() => btn.classList.remove("flash"), 350);
+        api.setStatus(`Runde ${Math.min(runde, RUNDEN)} von ${RUNDEN} · ${fehler} Fehltipps`);
+      }
+    }
+
+    function verteile(anzahl) {
+      const pts = [];
+      let minAb = anzahl <= 8 ? 0.24 : 0.19, tries = 0;
+      while (pts.length < anzahl) {
+        const p = [Math.random(), Math.random()];
+        const passt = pts.every(q => Math.hypot(p[0] - q[0], p[1] - q[1]) >= minAb);
+        if (passt) pts.push(p);
+        else if (++tries > 250) { tries = 0; minAb *= 0.92; }
+      }
+      return pts;
+    }
+    function neueRunde() {
+      geloest = false; naechster = 0;
+      let labels;
+      const d = gDiff();
+      if (d === "leicht") labels = Array.from({ length: 8 }, (_, i) => String(i + 1));
+      else if (d === "mittel") labels = Array.from({ length: 12 }, (_, i) => String(i + 1));
+      else {
+        labels = [];
+        const B = ["A", "B", "C", "D", "E", "F"];
+        for (let i = 0; i < 6; i++) { labels.push(String(i + 1)); labels.push(B[i]); }
+      }
+      knoten = verteile(labels.length).map(([rx, ry], idx) =>
+        ({ id: idx, label: labels[idx], rx, ry }));
+    }
+    function naechsteRunde() {
+      if (runde >= RUNDEN) {
+        fertig = true;
+        endBanner(api, `Nur ${fehler} Fehltipps in ${RUNDEN} Runden — stark!`,
+          fehler <= 2 ? true : null);
+        render();
+        return;
+      }
+      runde++; neueRunde(); render();
+    }
+    function neuesSpiel() { runde = 1; fehler = 0; fertig = false; neueRunde(); render(); }
+
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(() => drawLine());
+      ro.observe(field);
+      api.onCleanup(() => ro.disconnect());
+    }
+    runde = 1; fehler = 0; fertig = false;
+    neueRunde(); render();
+  }
+
+  Object.assign(Games2, { wordSearch, battleship, kniffel, muehle, uhrStellen, geldZaehlen, zahlenVerbinden });
 })();
